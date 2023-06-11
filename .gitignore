@@ -1,0 +1,5 @@
+# Project exclude paths
+/amqp/target/
+/common-jpa/target/
+/core/target/
+/dispatcher/target/

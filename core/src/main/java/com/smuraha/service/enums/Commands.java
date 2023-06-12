@@ -6,7 +6,8 @@ import java.util.Arrays;
 
 @Getter
 public enum Commands {
-    UPDATE("/update");
+    UPDATE("/update"),
+    RATES("/rates");
 
     private final String command;
 

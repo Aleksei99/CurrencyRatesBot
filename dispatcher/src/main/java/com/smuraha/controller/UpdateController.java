@@ -11,8 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static com.smuraha.RabbitQueue.COMMAND_QUEUE;
-import static com.smuraha.RabbitQueue.USER_INPUT_QUEUE;
+import static com.smuraha.RabbitQueue.*;
 
 @Component
 @Slf4j
@@ -36,6 +35,8 @@ public class UpdateController {
 
         if (update.hasMessage()) {
             distributeMessageByType(update);
+        } else if (update.hasCallbackQuery()) {
+            updateProducer.produce(CALLBACK_QUEUE,update);
         } else {
             log.error("Unsupported message type is received: " + update);
         }

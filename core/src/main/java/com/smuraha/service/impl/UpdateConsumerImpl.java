@@ -7,8 +7,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static com.smuraha.RabbitQueue.COMMAND_QUEUE;
-import static com.smuraha.RabbitQueue.USER_INPUT_QUEUE;
+import static com.smuraha.RabbitQueue.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +25,11 @@ public class UpdateConsumerImpl implements UpdateConsumer {
     @RabbitListener(queues = {COMMAND_QUEUE})
     public void consumeCommand(Update update) {
         mainService.processCommand(update);
+    }
+
+    @Override
+    @RabbitListener(queues = {CALLBACK_QUEUE})
+    public void consumeCallback(Update update) {
+        mainService.processCallback(update);
     }
 }

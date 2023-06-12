@@ -6,4 +6,5 @@ public interface MainService {
 
     void processUserInput(Update update);
     void processCommand(Update update);
+    void processCallback(Update update);
 }

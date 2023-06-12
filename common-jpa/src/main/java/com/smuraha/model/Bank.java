@@ -2,9 +2,7 @@ package com.smuraha.model;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -14,10 +12,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "bank")
+@ToString
 public class Bank extends BaseEntity{
 
+    @Column(unique = true)
     private String bankName;
 
-    @OneToMany(mappedBy = "bank")
+    @OneToMany(mappedBy = "bank",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<CurrencyRate> rates;
 }

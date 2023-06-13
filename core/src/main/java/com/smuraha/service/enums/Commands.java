@@ -7,7 +7,10 @@ import java.util.Arrays;
 @Getter
 public enum Commands {
     UPDATE("/update"),
-    RATES("/rates");
+    RATES("/rates"),
+    HELP("/help"),
+    RATES_STAT("/rates_stat")
+    ;
 
     private final String command;
 

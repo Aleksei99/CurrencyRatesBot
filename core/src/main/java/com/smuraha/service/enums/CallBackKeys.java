@@ -1,5 +1,8 @@
 package com.smuraha.service.enums;
 
 public enum CallBackKeys {
-    SET_SELECTED_CURRENCY
+    CHOOSE_CURRENCY,
+    CHOOSE_ALL_BANKS,
+    CHOOSE_BANK,
+    CH_B_CUR
 }

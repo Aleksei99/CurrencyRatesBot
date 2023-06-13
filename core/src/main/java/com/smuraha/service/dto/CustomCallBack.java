@@ -11,6 +11,9 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Должен быть не больше 64 байтов
+ */
 public class CustomCallBack {
 
     private CallBackKeys callBackKey;

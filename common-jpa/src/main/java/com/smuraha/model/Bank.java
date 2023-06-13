@@ -18,7 +18,7 @@ public class Bank extends BaseEntity{
     @Column(unique = true)
     private String bankName;
 
-    @OneToMany(mappedBy = "bank",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "bank",cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<CurrencyRate> rates;
 }

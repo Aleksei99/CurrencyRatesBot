@@ -5,23 +5,23 @@ import com.smuraha.model.Bank;
 import com.smuraha.model.enums.Currencies;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
-
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @DataJpaTest
-@ContextConfiguration(classes = TestConfig.class)
-@TestPropertySource(locations="classpath:test.properties")
+// @ContextConfiguration(classes = TestConfig.class)
+// @SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class BankRepoTest {
 
     @Autowired
@@ -30,15 +30,15 @@ class BankRepoTest {
     @Test
     void getBanksByCur() {
         List<Bank> banksByCur = bankRepo.getBanksByCur(Currencies.EUR);
-        assertThat(banksByCur).isNull();
+        assertThat(banksByCur).hasSize(0);
         System.out.println("ujdyj");
     }
 
-    @Test
+   // @Test
     void getBankByIdAndCur() {
     }
 
-    @Test
+    //@Test
     void findBankByBankName() {
 
     }

@@ -1,1 +1,1 @@
-create domain jsonb as other;
+create type "JSONB" as json;

@@ -1,7 +1,9 @@
 package com.smuraha.model;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.*;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.junit.platform.commons.annotation.Testable;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -17,6 +19,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "raw_data")
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class RawData extends BaseEntity{
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")

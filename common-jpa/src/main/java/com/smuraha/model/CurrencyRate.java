@@ -19,10 +19,13 @@ public class CurrencyRate extends BaseEntity{
     @Enumerated(value = EnumType.STRING)
     private Currencies currency;
 
+    @Column(name = "rate_buy")
     private BigDecimal rateBuy;
 
+    @Column(name = "rate_sell")
     private BigDecimal rateSell;
 
+    @Column(name = "last_update")
     private LocalDateTime lastUpdate;
 
     @ManyToOne

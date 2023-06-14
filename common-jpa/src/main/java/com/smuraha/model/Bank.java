@@ -15,7 +15,7 @@ import java.util.List;
 @ToString
 public class Bank extends BaseEntity{
 
-    @Column(unique = true)
+    @Column(unique = true, name = "bank_name")
     private String bankName;
 
     @OneToMany(mappedBy = "bank",cascade = CascadeType.ALL)

@@ -2,6 +2,7 @@ package com.smuraha.model;
 
 import lombok.*;
 import org.hibernate.annotations.Type;
+import org.junit.platform.commons.annotation.Testable;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import javax.persistence.Column;

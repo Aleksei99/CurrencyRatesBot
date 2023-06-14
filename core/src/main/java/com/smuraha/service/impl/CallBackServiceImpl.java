@@ -102,7 +102,7 @@ public class CallBackServiceImpl implements CallBackService {
 
     private SendMessage setAnswerForSelectedCurrencyForAllBanks(Map<CallBackParams, String> params) {
         Currencies currency = Currencies.valueOf(params.get(CUR));
-        List<Bank> allBanks = bankRepo.getBankRatesByCur(currency);
+        List<Bank> allBanks = bankRepo.getBanksByCur(currency);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setParseMode(ParseMode.HTML);
         StringBuilder builder = new StringBuilder();

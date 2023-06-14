@@ -21,7 +21,7 @@ public interface BankRepo extends JpaRepository<Bank, Long> {
             and c.currency = ?1
             order by c.rateSell asc
             """)
-    List<Bank> getBankRatesByCur(Currencies currency);
+    List<Bank> getBanksByCur(Currencies currency);
 
     @Query("""
             select b from Bank b join fetch b.rates c

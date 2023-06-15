@@ -1,15 +1,16 @@
 package com.smuraha.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smuraha.model.Bank;
 import com.smuraha.model.enums.Currencies;
 import com.smuraha.repository.BankRepo;
 import com.smuraha.service.CallBackService;
 import com.smuraha.service.dto.CustomCallBack;
 import com.smuraha.service.enums.CallBackParams;
+import com.smuraha.service.util.JsonMapper;
 import com.smuraha.service.util.TelegramUI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.smuraha.service.enums.CallBackKeys.*;
-import static com.smuraha.service.enums.CallBackParams.BANK;
-import static com.smuraha.service.enums.CallBackParams.CUR;
+import static com.smuraha.service.enums.CallBackParams.B;
+import static com.smuraha.service.enums.CallBackParams.C;
 
 @Service
 @RequiredArgsConstructor
@@ -29,22 +30,23 @@ public class CallBackServiceImpl implements CallBackService {
 
     private final BankRepo bankRepo;
     private final TelegramUI telegramUI;
+    private final JsonMapper jsonMapper;
 
     @Override
     public SendMessage process(CustomCallBack callBack) throws JsonProcessingException {
 
-        Map<CallBackParams, String> params = callBack.getParams();
-        switch (callBack.getCallBackKey()) {
-            case CHOOSE_CURRENCY -> {
+        Map<CallBackParams, String> params = callBack.getPrms();
+        switch (callBack.getKey()) {
+            case CH_CUR -> {
                 return setChooseAllBankOrSpecific(params);
             }
-            case CHOOSE_ALL_BANKS -> {
+            case CAB -> {
                 return setAnswerForSelectedCurrencyForAllBanks(params);
             }
-            case CHOOSE_BANK -> {
+            case CB -> {
                 return setChooseBank(params);
             }
-            case CH_B_CUR -> {
+            case CBC -> {
                 return setAnswerForSelectedCurrencyForBank(params);
             }
         }
@@ -52,8 +54,8 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
     private SendMessage setAnswerForSelectedCurrencyForBank(Map<CallBackParams, String> params) {
-        Long bankId = Long.valueOf(params.get(BANK));
-        Currencies currency = Currencies.valueOf(params.get(CUR));
+        Long bankId = Long.valueOf(params.get(B));
+        Currencies currency = Currencies.valueOf(params.get(C));
         Bank bank = bankRepo.getBankByIdAndCur(bankId, currency);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setParseMode(ParseMode.HTML);
@@ -67,13 +69,13 @@ public class CallBackServiceImpl implements CallBackService {
         List<InlineKeyboardButton> allBanksOrBankKB = new ArrayList<>();
         InlineKeyboardButton allBanksButton = new InlineKeyboardButton();
         allBanksButton.setText("Все банки");
-        allBanksButton.setCallbackData(new ObjectMapper().writeValueAsString(
-                new CustomCallBack(CHOOSE_ALL_BANKS, params)
+        allBanksButton.setCallbackData(jsonMapper.writeCustomCallBackAsString(
+                new CustomCallBack(CAB, params)
         ));
         InlineKeyboardButton chooseBankButton = new InlineKeyboardButton();
         chooseBankButton.setText("Выбрать банк");
-        chooseBankButton.setCallbackData(new ObjectMapper().writeValueAsString(
-                new CustomCallBack(CHOOSE_BANK, params)
+        chooseBankButton.setCallbackData(jsonMapper.writeCustomCallBackAsString(
+                new CustomCallBack(CB, params)
         ));
         allBanksOrBankKB.add(allBanksButton);
         allBanksOrBankKB.add(chooseBankButton);
@@ -90,9 +92,9 @@ public class CallBackServiceImpl implements CallBackService {
             List<InlineKeyboardButton> row_banks_KB = new ArrayList<>();
             InlineKeyboardButton cell_bank_KB = new InlineKeyboardButton();
             cell_bank_KB.setText(bank.getBankName());
-            params.put(BANK, bank.getId().toString());
-            cell_bank_KB.setCallbackData(new ObjectMapper().writeValueAsString(
-                    new CustomCallBack(CH_B_CUR, params)
+            params.put(B, bank.getId().toString());
+            cell_bank_KB.setCallbackData(jsonMapper.writeCustomCallBackAsString(
+                    new CustomCallBack(CBC, params)
             ));
             row_banks_KB.add(cell_bank_KB);
             banks_KB.add(row_banks_KB);
@@ -101,13 +103,13 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
     private SendMessage setAnswerForSelectedCurrencyForAllBanks(Map<CallBackParams, String> params) {
-        Currencies currency = Currencies.valueOf(params.get(CUR));
-        List<Bank> allBanks = bankRepo.getBanksByCur(currency);
+        Currencies currency = Currencies.valueOf(params.get(C));
+        List<Bank> allBanks = bankRepo.getBanksByCur(currency, PageRequest.of(1, 20));
         SendMessage sendMessage = new SendMessage();
         sendMessage.setParseMode(ParseMode.HTML);
         StringBuilder builder = new StringBuilder();
         for (Bank bank : allBanks) {
-            builder.append(bank);
+            builder.append(telegramUI.getBankFormedRates(bank));
         }
         sendMessage.setText(builder.toString());
         return sendMessage;

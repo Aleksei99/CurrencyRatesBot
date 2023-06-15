@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -64,5 +65,9 @@ public class UpdateController {
 
     public void setView(SendMessage sendMessage) {
         telegramBot.sendMessage(sendMessage);
+    }
+
+    public void delete(DeleteMessage deleteMessage) {
+        telegramBot.deleteMessage(deleteMessage);
     }
 }

@@ -5,4 +5,5 @@ public class RabbitQueue {
     public static final String COMMAND_QUEUE = "command_queue";
     public static final String ANSWER_QUEUE = "answer_queue";
     public static final String CALLBACK_QUEUE = "callback_queue";
+    public static final String DELETE_QUEUE = "delete_queue";
 }

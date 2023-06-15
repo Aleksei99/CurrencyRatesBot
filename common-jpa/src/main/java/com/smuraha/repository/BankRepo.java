@@ -2,6 +2,7 @@ package com.smuraha.repository;
 
 import com.smuraha.model.Bank;
 import com.smuraha.model.enums.Currencies;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,7 +22,7 @@ public interface BankRepo extends JpaRepository<Bank, Long> {
             and c.currency = ?1
             order by c.rateSell asc
             """)
-    List<Bank> getBanksByCur(Currencies currency);
+    List<Bank> getBanksByCur(Currencies currency, Pageable pageable);
 
     @Query("""
             select b from Bank b join fetch b.rates c

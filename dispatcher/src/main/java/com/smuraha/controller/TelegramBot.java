@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -45,6 +46,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                 execute(message);
             } catch (TelegramApiException e) {
                 log.error("Error occurred, during sending message", e);
+            }
+        }
+    }
+    public void deleteMessage(DeleteMessage message) {
+        if (message != null) {
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                log.error("Error occurred, during deleting message", e);
             }
         }
     }

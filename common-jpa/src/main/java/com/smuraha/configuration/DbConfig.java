@@ -24,39 +24,38 @@ import java.util.HashMap;
 @EnableTransactionManagement
 @EnableJpaRepositories(entityManagerFactoryRef = "dbManagerFactory",
         transactionManagerRef = "dbTransactionManager",
-        basePackages = {"com.smuraha.*"} )
+        basePackages = {"com.smuraha.*"})
 @EntityScan("com.smuraha.model")
 @ComponentScan("com.smuraha.*")
-@ConfigurationPropertiesScan
 @RequiredArgsConstructor
 public class DbConfig {
 
-//    private final DbProperties dbProperties;
-//
-//
-//    @Bean(name = "dbDataSource")
-//    public DataSource dataSource(){
-//        return DataSourceBuilder.create()
-//                .driverClassName(dbProperties.getDriverClassName())
-//                .password(dbProperties.getPassword())
-//                .username(dbProperties.getUsername())
-//                .url(dbProperties.getUrl())
-//                .build();
-//    }
-//
-//
-//    @Bean(name = "dbManagerFactory")
-//    public LocalContainerEntityManagerFactoryBean dbManagerFactory(EntityManagerFactoryBuilder builder,
-//                                                                       @Qualifier("dbDataSource") DataSource dataSource){
-//        HashMap<String, Object> properties = new HashMap<>();
-//        properties.put("hibernate.hbm2ddl.auto","update");
-//        properties.put("hibernate.dialect","org.hibernate.dialect.PostgreSQLDialect");
-//        return builder.dataSource(dataSource).properties(properties).packages("com.smuraha.model").persistenceUnit("db").build();
-//    }
-//
-//
-//    @Bean(name = "dbTransactionManager")
-//    public PlatformTransactionManager transactionManager(@Qualifier("dbManagerFactory") EntityManagerFactory entityManagerFactory){
-//        return new JpaTransactionManager(entityManagerFactory);
-//    }
+    private final DbProperties dbProperties;
+
+
+    @Bean(name = "dbDataSource")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create()
+                .driverClassName(dbProperties.getDriverClassName())
+                .password(dbProperties.getPassword())
+                .username(dbProperties.getUsername())
+                .url(dbProperties.getUrl())
+                .build();
+    }
+
+
+    @Bean(name = "dbManagerFactory")
+    public LocalContainerEntityManagerFactoryBean dbManagerFactory(EntityManagerFactoryBuilder builder,
+                                                                   @Qualifier("dbDataSource") DataSource dataSource) {
+        HashMap<String, Object> properties = new HashMap<>();
+        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        return builder.dataSource(dataSource).properties(properties).packages("com.smuraha.model").persistenceUnit("db").build();
+    }
+
+
+    @Bean(name = "dbTransactionManager")
+    public PlatformTransactionManager transactionManager(@Qualifier("dbManagerFactory") EntityManagerFactory entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory);
+    }
 }

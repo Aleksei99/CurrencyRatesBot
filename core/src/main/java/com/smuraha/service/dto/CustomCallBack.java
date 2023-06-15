@@ -5,6 +5,7 @@ import com.smuraha.service.enums.CallBackParams;
 import lombok.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,7 +17,20 @@ import java.util.Map;
  */
 public class CustomCallBack {
 
-    private CallBackKeys callBackKey;
+    private CallBackKeys key;
 
-    private Map<CallBackParams,String> params;
+    private Map<CallBackParams,String> prms;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomCallBack that = (CustomCallBack) o;
+        return key == that.key && Objects.equals(prms, that.prms);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, prms);
+    }
 }

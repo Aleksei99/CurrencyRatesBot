@@ -99,17 +99,20 @@ public class MainServiceImpl implements MainService {
     public void processCallback(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         Long chatId = callbackQuery.getFrom().getId();
-        try {
-            SendMessage sendMessage = callBackService.process(jsonMapper.readCustomCallBack(callbackQuery.getData()));
-            sendMessage.setChatId(chatId);
-            DeleteMessage deleteMessage = new DeleteMessage();
-            deleteMessage.setChatId(chatId);
-            deleteMessage.setMessageId(callbackQuery.getMessage().getMessageId());
-            answerProducer.produce(deleteMessage);
-            answerProducer.produce(sendMessage);
-        } catch (JsonProcessingException e) {
-            sendTextAnswer("Внутренняя ошибка сервера!", chatId);
-            log.error("Ошибка парсинга", e);
+        String queryData = callbackQuery.getData();
+        if (!queryData.equals("IGNORE")) {
+            try {
+                SendMessage sendMessage = callBackService.process(jsonMapper.readCustomCallBack(queryData));
+                sendMessage.setChatId(chatId);
+                DeleteMessage deleteMessage = new DeleteMessage();
+                deleteMessage.setChatId(chatId);
+                deleteMessage.setMessageId(callbackQuery.getMessage().getMessageId());
+                answerProducer.produce(deleteMessage);
+                answerProducer.produce(sendMessage);
+            } catch (JsonProcessingException e) {
+                sendTextAnswer("Внутренняя ошибка сервера!", chatId);
+                log.error("Ошибка парсинга", e);
+            }
         }
     }
 

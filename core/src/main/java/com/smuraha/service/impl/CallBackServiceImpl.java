@@ -10,6 +10,7 @@ import com.smuraha.service.enums.CallBackParams;
 import com.smuraha.service.util.JsonMapper;
 import com.smuraha.service.util.TelegramUI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -21,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.smuraha.service.enums.CallBackKeys.*;
-import static com.smuraha.service.enums.CallBackParams.B;
-import static com.smuraha.service.enums.CallBackParams.C;
+import static com.smuraha.service.enums.CallBackParams.*;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +87,12 @@ public class CallBackServiceImpl implements CallBackService {
     private SendMessage setChooseBank(Map<CallBackParams, String> params) throws JsonProcessingException {
         List<List<InlineKeyboardButton>> banks_KB = new ArrayList<>();
 
-        List<Bank> banks = bankRepo.findAll();
+        int page = params.containsKey(P)?Integer.parseInt(params.get(P)):0;
+
+        Page<Bank> bankPages = bankRepo.findAll(PageRequest.of(page, 5));
+        int totalPages = bankPages.getTotalPages();
+
+        List<Bank> banks = bankPages.toList();
         for (Bank bank : banks) {
             List<InlineKeyboardButton> row_banks_KB = new ArrayList<>();
             InlineKeyboardButton cell_bank_KB = new InlineKeyboardButton();
@@ -99,19 +104,28 @@ public class CallBackServiceImpl implements CallBackService {
             row_banks_KB.add(cell_bank_KB);
             banks_KB.add(row_banks_KB);
         }
-        return telegramUI.getMessageWithButtons(banks_KB, "Выберите: ");
+        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(CB,params,page,totalPages);
+
+        banks_KB.add(pager);
+        return telegramUI.getMessageWithButtons(banks_KB, "Выберите Банк: ");
     }
 
-    private SendMessage setAnswerForSelectedCurrencyForAllBanks(Map<CallBackParams, String> params) {
+    private SendMessage setAnswerForSelectedCurrencyForAllBanks(Map<CallBackParams, String> params) throws JsonProcessingException {
         Currencies currency = Currencies.valueOf(params.get(C));
-        List<Bank> allBanks = bankRepo.getBanksByCur(currency, PageRequest.of(1, 20));
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setParseMode(ParseMode.HTML);
+
+        List<List<InlineKeyboardButton>> banks_KB = new ArrayList<>();
+        int page = params.containsKey(P)?Integer.parseInt(params.get(P)):0;
+        Page<Bank> bankPages = bankRepo.getBanksByCur(currency, PageRequest.of(page, 5));
+        int totalPages = bankPages.getTotalPages();
+
+        List<Bank> allBanks =  bankPages.toList();
+
         StringBuilder builder = new StringBuilder();
         for (Bank bank : allBanks) {
             builder.append(telegramUI.getBankFormedRates(bank));
         }
-        sendMessage.setText(builder.toString());
-        return sendMessage;
+        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(CAB,params,page,totalPages);
+        banks_KB.add(pager);
+        return telegramUI.getMessageWithButtons(banks_KB, builder.toString());
     }
 }

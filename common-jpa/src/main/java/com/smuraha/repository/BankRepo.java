@@ -2,6 +2,7 @@ package com.smuraha.repository;
 
 import com.smuraha.model.Bank;
 import com.smuraha.model.enums.Currencies;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,15 +15,18 @@ import java.util.List;
 public interface BankRepo extends JpaRepository<Bank, Long> {
     Bank findBankByBankName(String name);
 
-    @Query("""
+    @Query(value = """
             select b from Bank b join fetch b.rates c
             where c.lastUpdate in
             (select max(cr.lastUpdate) from CurrencyRate cr
             group by cr.bank,cr.currency)
-            and c.currency = ?1
+            and c.currency = :cur
             order by c.rateSell asc
-            """)
-    List<Bank> getBanksByCur(Currencies currency, Pageable pageable);
+            """,
+            countQuery = """
+                    select count(b) from Bank b
+                    """)
+    Page<Bank> getBanksByCur(@Param("cur") Currencies currency, Pageable pageable);
 
     @Query("""
             select b from Bank b join fetch b.rates c

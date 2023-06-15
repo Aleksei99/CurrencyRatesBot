@@ -26,7 +26,7 @@ class BankRepoTest {
     @Test
     void getBanksByCur() {
         Currencies expectedCurrency = Currencies.EUR;
-        List<Bank> banksByCur = bankRepo.getBanksByCur(expectedCurrency, PageRequest.of(1, 20));
+        List<Bank> banksByCur = bankRepo.getBanksByCur(expectedCurrency, PageRequest.of(1, 20)).toList();
         Condition<Bank> hasOnlyOneCurrency = new Condition<>(s -> s.getRates().size() == 1, "has only one currency");
         Condition<Bank> hasOnlyEUR = new Condition<>(s -> s.getRates().get(0).getCurrency() == expectedCurrency, "has only a EUR");
 
@@ -53,5 +53,11 @@ class BankRepoTest {
         Bank bank = bankRepo.findBankByBankName("PARITETBANK");
         assertThat(bank).isNotNull();
         assertThat(bank.getBankName()).isEqualTo("PARITETBANK");
+    }
+
+    @Test
+    void findAllBanks(){
+        List<Bank> allBanks = bankRepo.findAll(PageRequest.of(0, 5)).toList();
+        assertThat(allBanks).hasSize(5);
     }
 }

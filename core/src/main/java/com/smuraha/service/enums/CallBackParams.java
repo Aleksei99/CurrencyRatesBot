@@ -8,5 +8,9 @@ public enum CallBackParams {
     /**
      * Bank
      */
-    B
+    B,
+    /**
+     * Current page
+     */
+    P
 }

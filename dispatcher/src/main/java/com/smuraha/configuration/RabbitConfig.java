@@ -1,5 +1,6 @@
 package com.smuraha.configuration;
 
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -11,22 +12,33 @@ import static com.smuraha.RabbitQueue.*;
 public class RabbitConfig {
 
     @Bean
-    public MessageConverter messageConverter(){
+    public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
     @Bean
-    public String userInputQueue(){
-        return USER_INPUT_QUEUE;
+    public Queue userInputQueue() {
+        return new Queue(USER_INPUT_QUEUE);
     }
 
     @Bean
-    public String commandQueue(){
-        return COMMAND_QUEUE;
+    public Queue commandQueue() {
+        return new Queue(COMMAND_QUEUE);
     }
+
     @Bean
-    public String answerQueue(){
-        return ANSWER_QUEUE;
+    public Queue answerQueue() {
+        return new Queue(ANSWER_QUEUE);
+    }
+
+    @Bean
+    public Queue callbackQueue() {
+        return new Queue(CALLBACK_QUEUE);
+    }
+
+    @Bean
+    public Queue deleteQueue() {
+        return new Queue(DELETE_QUEUE);
     }
 
 }

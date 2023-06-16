@@ -27,6 +27,11 @@ INSERT INTO bank (id, bank_name) VALUES (26, 'ОПТИКУРС НКФО');
 INSERT INTO bank (id, bank_name) VALUES (27, 'БТА БАНК');
 INSERT INTO bank (id, bank_name) VALUES (28, 'MYFIN ОБМЕН');
 
+INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 12:54:22.493749');
+INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 11:54:22.493749');
+INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 10:54:22.493749');
+INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 09:54:22.493749');
+
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (1, 'USD', '2023-06-12 10:54:22.493749', 2.93, 2.96, 1);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (2, 'EUR', '2023-06-12 10:54:22.493749', 3.11, 3.19, 1);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (3, 'RUB', '2023-06-12 10:54:22.493749', 2.70, 3.70, 1);

@@ -7,9 +7,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 
-import static com.smuraha.RabbitQueue.ANSWER_QUEUE;
-import static com.smuraha.RabbitQueue.DELETE_QUEUE;
+import static com.smuraha.RabbitQueue.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +27,11 @@ public class AnswerConsumerImpl implements AnswerConsumer {
     @RabbitListener(queues = {DELETE_QUEUE})
     public void consumeDeleteMessage(DeleteMessage deleteMessage) {
         updateController.delete(deleteMessage);
+    }
+    @Override
+    @RabbitListener(queues = {EDIT_QUEUE})
+    public void consumeEditMessage(EditMessageText editMessageText) {
+        updateController.edit(editMessageText);
     }
 
 }

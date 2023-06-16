@@ -14,13 +14,18 @@ import com.smuraha.service.util.TelegramUI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +71,7 @@ public class MainServiceImpl implements MainService {
                         log.error("Ошибка обновления курсов!", e);
                         return;
                     }
-                    sendTextAnswer("Курс валют успешно обновлен!", chatId);
+                    sendTextAnswer("Курс валют обновлен!", chatId);
                 }
                 case RATES -> {
                     String text = "Выберите валюту: ";
@@ -82,10 +87,17 @@ public class MainServiceImpl implements MainService {
                     sendMessage.setChatId(chatId);
                     answerProducer.produce(sendMessage);
                 }
-                case HELP -> {
-                    sendTextAnswer("Пока не реализовано!", chatId);
+                case HELP,START -> {
+                    sendTextAnswer("""
+                            👋  Данный бот по вашему запросу предоставит актуальный курс валют
+                            ▶  Для того чтобы получить курс  💰  нажмите /rates
+                            ▶  Для получения оповещения  ✓✉  о изменении курса той или иной валюты
+                            нажмите /subscribe
+                            ▶  Для отключения оповещения  ✕✉  нажмите /unsubscribe
+                            ▶  Для просмотра статистики  📈  по курсу нажмите /rates_stat
+                            """, chatId);
                 }
-                case RATES_STAT -> {
+                case RATES_STAT,SUBSCRIBE,UNSUBSCRIBE -> {
                     sendTextAnswer("Пока не реализовано!", chatId);
                 }
             }
@@ -98,17 +110,19 @@ public class MainServiceImpl implements MainService {
     @Override
     public void processCallback(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
-        Long chatId = callbackQuery.getFrom().getId();
+        Long chatId = callbackQuery.getMessage().getChatId();
         String queryData = callbackQuery.getData();
         if (!queryData.equals("IGNORE")) {
             try {
                 SendMessage sendMessage = callBackService.process(jsonMapper.readCustomCallBack(queryData));
-                sendMessage.setChatId(chatId);
-                DeleteMessage deleteMessage = new DeleteMessage();
-                deleteMessage.setChatId(chatId);
-                deleteMessage.setMessageId(callbackQuery.getMessage().getMessageId());
-                answerProducer.produce(deleteMessage);
-                answerProducer.produce(sendMessage);
+                InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
+                EditMessageText editMessageText = new EditMessageText();
+                editMessageText.setChatId(chatId);
+                editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
+                editMessageText.setText(sendMessage.getText());
+                editMessageText.setParseMode(ParseMode.HTML);
+                editMessageText.setReplyMarkup(replyMarkup);
+                answerProducer.produce(editMessageText);
             } catch (JsonProcessingException e) {
                 sendTextAnswer("Внутренняя ошибка сервера!", chatId);
                 log.error("Ошибка парсинга", e);

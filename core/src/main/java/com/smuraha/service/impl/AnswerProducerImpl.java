@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 
 import java.io.Serializable;
 
-import static com.smuraha.RabbitQueue.ANSWER_QUEUE;
-import static com.smuraha.RabbitQueue.DELETE_QUEUE;
+import static com.smuraha.RabbitQueue.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ public class AnswerProducerImpl implements AnswerProducer {
             rabbitTemplate.convertAndSend(ANSWER_QUEUE, message);
         }else if(message instanceof DeleteMessage){
             rabbitTemplate.convertAndSend(DELETE_QUEUE,message);
+        }else if(message instanceof EditMessageText){
+            rabbitTemplate.convertAndSend(EDIT_QUEUE,message);
         }
     }
 }

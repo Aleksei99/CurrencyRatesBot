@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -33,7 +34,6 @@ public class UpdateController {
             log.error("Received update is null");
             return;
         }
-
         if (update.hasMessage()) {
             distributeMessageByType(update);
         } else if (update.hasCallbackQuery()) {
@@ -59,8 +59,10 @@ public class UpdateController {
     }
 
     private void setUnsupportedMessageType(Message message) {
-        SendMessage sendMessage = messageGenerator.generateSendMessageWithText(message, "Бот не поддерживает отправку файлов!");
-        setView(sendMessage);
+        if(message.getChat().getType().equals("private")) {
+            SendMessage sendMessage = messageGenerator.generateSendMessageWithText(message, "Бот не поддерживает отправку файлов!");
+            setView(sendMessage);
+        }
     }
 
     public void setView(SendMessage sendMessage) {
@@ -69,5 +71,9 @@ public class UpdateController {
 
     public void delete(DeleteMessage deleteMessage) {
         telegramBot.deleteMessage(deleteMessage);
+    }
+
+    public void edit(EditMessageText editMessageText) {
+        telegramBot.editMessage(editMessageText);
     }
 }

@@ -2,8 +2,10 @@ package com.smuraha.service.impl;
 
 import com.smuraha.model.Bank;
 import com.smuraha.model.CurrencyRate;
+import com.smuraha.model.CurrencyUpdateHistory;
 import com.smuraha.model.enums.Currencies;
 import com.smuraha.repository.BankRepo;
+import com.smuraha.repository.CurrencyUpdateHistoryRepo;
 import com.smuraha.service.JsoupParserService;
 import com.smuraha.service.dto.BankCurrencyDto;
 import lombok.RequiredArgsConstructor;
@@ -25,21 +27,27 @@ import java.util.*;
 public class JsoupParserServiceImpl implements JsoupParserService {
 
     private final BankRepo bankRepo;
+    private final CurrencyUpdateHistoryRepo historyRepo;
 
     @Override
     public void parseAndUpdate(String url) throws IOException {
-        Map<String, List<BankCurrencyDto>> bankCurrencyInfo = getBankCurrencyInfo(url);
-        Set<Map.Entry<String, List<BankCurrencyDto>>> entries = bankCurrencyInfo.entrySet();
 
-        for (Map.Entry<String, List<BankCurrencyDto>> entry : entries) {
-            String bankName = entry.getKey();
-            Bank bank = bankRepo.findBankByBankName(bankName);
-            if (bank == null) {
-                bank = bankRepo.saveAndFlush(Bank.builder().bankName(bankName).build());
+        if(historyRepo.findByUpdateTimeIsGreaterThanEqual(LocalDateTime.now().minusHours(1)).isEmpty()) {
+
+            historyRepo.save(new CurrencyUpdateHistory(LocalDateTime.now()));
+            Map<String, List<BankCurrencyDto>> bankCurrencyInfo = getBankCurrencyInfo(url);
+            Set<Map.Entry<String, List<BankCurrencyDto>>> entries = bankCurrencyInfo.entrySet();
+
+            for (Map.Entry<String, List<BankCurrencyDto>> entry : entries) {
+                String bankName = entry.getKey();
+                Bank bank = bankRepo.findBankByBankName(bankName);
+                if (bank == null) {
+                    bank = bankRepo.saveAndFlush(Bank.builder().bankName(bankName).build());
+                }
+                List<CurrencyRate> rates = getCurrencyRatesOfDto(entry.getValue(), bank);
+                bank.setRates(rates);
+                bankRepo.saveAndFlush(bank);
             }
-            List<CurrencyRate> rates = getCurrencyRatesOfDto(entry.getValue(), bank);
-            bank.setRates(rates);
-            bankRepo.saveAndFlush(bank);
         }
     }
 

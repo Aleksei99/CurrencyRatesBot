@@ -7,6 +7,9 @@ import com.smuraha.service.enums.CallBackParams;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -14,4 +17,5 @@ public interface TelegramUI {
     SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text);
     String getBankFormedRates(Bank bank);
     List<InlineKeyboardButton> getCustomPager(CallBackKeys key, Map<CallBackParams, String> params, int page,int totalPages) throws JsonProcessingException;
+    void drawChart(Map<LocalDate, List<BigDecimal>> data, String chatId) throws IOException;
 }

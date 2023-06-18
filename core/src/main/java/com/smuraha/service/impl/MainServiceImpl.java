@@ -2,10 +2,7 @@ package com.smuraha.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smuraha.model.enums.Currencies;
-import com.smuraha.service.AnswerProducer;
-import com.smuraha.service.CallBackService;
-import com.smuraha.service.JsoupParserService;
-import com.smuraha.service.MainService;
+import com.smuraha.service.*;
 import com.smuraha.service.dto.CustomCallBack;
 import com.smuraha.service.enums.CallBackParams;
 import com.smuraha.service.enums.Commands;
@@ -16,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -24,8 +20,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +38,7 @@ public class MainServiceImpl implements MainService {
     private final CallBackService callBackService;
     private final TelegramUI telegramUI;
     private final JsonMapper jsonMapper;
+    private final ChartService chartService;
 
     @Override
     public void processUserInput(Update update) {
@@ -97,13 +92,19 @@ public class MainServiceImpl implements MainService {
                             ▶  Для просмотра статистики  📈  по курсу нажмите /rates_stat
                             """, chatId);
                 }
-                case RATES_STAT,SUBSCRIBE,UNSUBSCRIBE -> {
+                case RATES_STAT -> {
+                    chartService.drawChart(chatId.toString());
+                }
+                case SUBSCRIBE,UNSUBSCRIBE -> {
                     sendTextAnswer("Пока не реализовано!", chatId);
                 }
             }
         } catch (UnsupportedOperationException e) {
             log.error("Пользователь ввел не существующую команду");
             sendTextAnswer(e.getMessage(), chatId);
+        } catch (IOException e) {
+            log.error("Ошибка отправки графика");
+            sendTextAnswer("Произошла ошибка",chatId);
         }
     }
 

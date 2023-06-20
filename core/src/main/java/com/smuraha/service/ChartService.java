@@ -1,7 +1,9 @@
 package com.smuraha.service;
 
+import com.smuraha.model.enums.Currencies;
+
 import java.io.IOException;
 
 public interface ChartService {
-    void drawChart(String chatId) throws IOException;
+    void drawChartByCurrency(String chatId, Currencies currency) throws IOException;
 }

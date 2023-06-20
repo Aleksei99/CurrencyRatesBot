@@ -1,5 +1,6 @@
 package com.smuraha.service.impl;
 
+import com.smuraha.model.dto.UpdateWithUserDto;
 import com.smuraha.service.MainService;
 import com.smuraha.service.UpdateConsumer;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class UpdateConsumerImpl implements UpdateConsumer {
 
     @Override
     @RabbitListener(queues = {USER_INPUT_QUEUE})
-    public void consumeUserInput(Update update) {
-        mainService.processUserInput(update);
+    public void consumeUserInput(UpdateWithUserDto updateDto) {
+        mainService.processUserInput(updateDto);
     }
 
     @Override

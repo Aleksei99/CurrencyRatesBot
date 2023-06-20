@@ -1,6 +1,7 @@
 package com.smuraha.service.impl;
 
 import com.smuraha.model.CurrencyRateInfo;
+import com.smuraha.model.enums.Currencies;
 import com.smuraha.repository.CurrencyRateRepo;
 import com.smuraha.service.ChartService;
 import com.smuraha.service.util.TelegramUI;
@@ -22,8 +23,8 @@ public class ChartServiceImpl implements ChartService {
     private final CurrencyRateRepo currencyRateRepo;
 
     @Override
-    public void drawChart(String chatId) throws IOException {
-        List<CurrencyRateInfo> rawData = currencyRateRepo.getRatesDataForCurrencyFor30Days("USD");
+    public void drawChartByCurrency(String chatId, Currencies currency) throws IOException {
+        List<CurrencyRateInfo> rawData = currencyRateRepo.getRatesDataForCurrencyFor30Days(currency.toString());
         Map<LocalDate, List<BigDecimal>> data = new TreeMap<>();
         for (CurrencyRateInfo info:rawData) {
             data.put(info.getLastUpdate(),List.of(info.getBuy(),info.getSell()));

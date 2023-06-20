@@ -2,9 +2,21 @@ package com.smuraha.service.enums;
 
 public enum CallBackKeys {
     /**
-     * Choose currency
+     * Choose Bank or All
      */
-    CH_CUR,
+    CCB,
+    /**
+     * Choose currency for Chart
+     */
+    CCC,
+    /**
+     * Choose bank for subscription
+     */
+    CBS,
+    /**
+     * subscribe for selected bank and currency
+     */
+    SUB,
     /**
      * Choose all banks
      */

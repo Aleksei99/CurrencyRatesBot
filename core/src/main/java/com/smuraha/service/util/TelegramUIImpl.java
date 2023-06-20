@@ -28,7 +28,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.smuraha.service.enums.CallBackKeys.CB;
 import static com.smuraha.service.enums.CallBackParams.P;
 
 @Service
@@ -46,11 +44,11 @@ public class TelegramUIImpl implements TelegramUI {
     private final JsonMapper jsonMapper;
 
     @Override
-    public SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> currencyButtons, String text) {
+    public SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setParseMode(ParseMode.HTML);
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(currencyButtons);
+        inlineKeyboardMarkup.setKeyboard(buttons);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         sendMessage.setText(text);
         return sendMessage;
@@ -69,9 +67,9 @@ public class TelegramUIImpl implements TelegramUI {
     }
 
     @Override
-    public List<InlineKeyboardButton> getCustomPager(CallBackKeys key, Map<CallBackParams, String> params, int page,int totalPages) throws JsonProcessingException {
+    public List<InlineKeyboardButton> getCustomPager(CallBackKeys key, Map<CallBackParams, String> params, int page, int totalPages) throws JsonProcessingException {
         List<InlineKeyboardButton> pager = new ArrayList<>();
-        if(page>0) {
+        if (page > 0) {
             InlineKeyboardButton prev = new InlineKeyboardButton();
             prev.setText("←");
             params.put(P, (page - 1) + "");
@@ -81,10 +79,10 @@ public class TelegramUIImpl implements TelegramUI {
             pager.add(prev);
         }
         InlineKeyboardButton cur = new InlineKeyboardButton();
-        cur.setText(""+(page+1)+"/"+totalPages);
+        cur.setText("" + (page + 1) + "/" + totalPages);
         cur.setCallbackData("IGNORE");
         pager.add(cur);
-        if(page<totalPages-1){
+        if (page < totalPages - 1) {
             InlineKeyboardButton next = new InlineKeyboardButton();
             next.setText("→");
             params.put(P, (page + 1) + "");
@@ -122,7 +120,7 @@ public class TelegramUIImpl implements TelegramUI {
         BigDecimal maxValue = listOfValues.stream().max(BigDecimal::compareTo).get();
         BigDecimal minValue = listOfValues.stream().min(BigDecimal::compareTo).get();
         List<BigDecimal> setOfValues = new ArrayList<>();
-        for (BigDecimal i = minValue; i.compareTo(maxValue) <= 0; i=i.add(new BigDecimal("0.05"))) {
+        for (BigDecimal i = minValue; i.compareTo(maxValue) <= 0; i = i.add(new BigDecimal("0.05"))) {
             setOfValues.add(i);
         }
 
@@ -186,10 +184,10 @@ public class TelegramUIImpl implements TelegramUI {
         byte[] imageBytes = baos.toByteArray();
 
         // Send the image to the Telegram bot
-        sendImageToTelegramBot(imageBytes,chatId);
+        sendImageToTelegramBot(imageBytes, chatId);
     }
 
-    private void sendImageToTelegramBot(byte[] imageBytes,String chatId) throws IOException {
+    private void sendImageToTelegramBot(byte[] imageBytes, String chatId) throws IOException {
         // Telegram bot API endpoint
         String botToken = System.getenv("BOT_TOKEN");
         String botApiUrl = "https://api.telegram.org/bot" + botToken + "/sendPhoto";

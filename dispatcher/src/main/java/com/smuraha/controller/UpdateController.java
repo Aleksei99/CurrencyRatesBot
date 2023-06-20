@@ -1,6 +1,9 @@
 package com.smuraha.controller;
 
+import com.smuraha.model.AppUser;
 import com.smuraha.model.RawData;
+import com.smuraha.model.enums.UserState;
+import com.smuraha.service.AppUserService;
 import com.smuraha.service.RawDataService;
 import com.smuraha.service.UpdateProducer;
 import com.smuraha.util.MessageGenerator;
@@ -24,6 +27,7 @@ public class UpdateController {
     private final MessageGenerator messageGenerator;
     private final UpdateProducer updateProducer;
     private final RawDataService rawDataService;
+    private final AppUserService userService;
 
     public void registerBot(TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
@@ -37,7 +41,7 @@ public class UpdateController {
         if (update.hasMessage()) {
             distributeMessageByType(update);
         } else if (update.hasCallbackQuery()) {
-            updateProducer.produce(CALLBACK_QUEUE,update);
+            updateProducer.produce(CALLBACK_QUEUE, update);
         } else {
             log.error("Unsupported message type is received: " + update);
         }
@@ -47,11 +51,21 @@ public class UpdateController {
         Message message = update.getMessage();
         rawDataService.save(RawData.builder()
                 .event(update).build());
+        AppUser user = userService.findOrSaveUser(update);
         if (message.hasText()) {
-            if (message.getText().startsWith("/")) {
+            String text = message.getText();
+            ///TODO реализовать обработку
+            if (text.equals("/cancel")) {
+                updateProducer.produce(CANCEL_QUEUE, update, user);
+            } else if (user.getUserState().equals(UserState.WAIT_FOR_TIME_PICK)) {
+                updateProducer.produce(USER_INPUT_QUEUE, update, user);
+            } else if (text.startsWith("/")) {
                 updateProducer.produce(COMMAND_QUEUE, update);
-            } else {
-                updateProducer.produce(USER_INPUT_QUEUE, update);
+            }else {
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setText("Выполните предыдущий запрос или для отмены предыдущей операции введите /cancel");
+                sendMessage.setChatId(message.getChatId());
+                setView(sendMessage);
             }
         } else {
             setUnsupportedMessageType(message);
@@ -59,7 +73,7 @@ public class UpdateController {
     }
 
     private void setUnsupportedMessageType(Message message) {
-        if(message.getChat().getType().equals("private")) {
+        if (message.getChat().getType().equals("private")) {
             SendMessage sendMessage = messageGenerator.generateSendMessageWithText(message, "Бот не поддерживает отправку файлов!");
             setView(sendMessage);
         }

@@ -1,13 +1,12 @@
 package com.smuraha.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.smuraha.model.enums.Currencies;
+import com.smuraha.model.AppUser;
+import com.smuraha.model.dto.UpdateWithUserDto;
+import com.smuraha.model.enums.UserState;
 import com.smuraha.service.*;
-import com.smuraha.service.dto.CustomCallBack;
-import com.smuraha.service.enums.CallBackParams;
 import com.smuraha.service.enums.Commands;
-import com.smuraha.service.util.JsonMapper;
-import com.smuraha.service.util.TelegramUI;
+import com.smuraha.service.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,12 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static com.smuraha.service.enums.CallBackKeys.CH_CUR;
-import static com.smuraha.service.enums.CallBackParams.C;
 
 @Service
 @Slf4j
@@ -37,17 +31,17 @@ public class MainServiceImpl implements MainService {
     private final JsoupParserService jsoupParserService;
     private final CallBackService callBackService;
     private final TelegramUI telegramUI;
-    private final JsonMapper jsonMapper;
-    private final ChartService chartService;
+    private final List<CurrencyButtons> currencyButtons;
+    private final UserInputService userInputService;
 
     @Override
-    public void processUserInput(Update update) {
-        ///TODO реализовать обработку
+    public void processUserInput(UpdateWithUserDto updateDto) {
+        Update update = updateDto.getUpdate();
         Long chatId = update.getMessage().getChatId();
-        String answer = """
-                Пока не реализовано
-                """;
-        sendTextAnswer(answer, chatId);
+        AppUser user = updateDto.getUser();
+        if (user.getUserState().equals(UserState.WAIT_FOR_TIME_PICK)) {
+            sendTextAnswer(userInputService.setupSubscriptionSchedule(updateDto), chatId);
+        }
     }
 
     @Override
@@ -70,19 +64,23 @@ public class MainServiceImpl implements MainService {
                 }
                 case RATES -> {
                     String text = "Выберите валюту: ";
-                    List<List<InlineKeyboardButton>> currencyButtons;
+                    List<List<InlineKeyboardButton>> ratesCurrencyButtons;
                     try {
-                        currencyButtons = getCurrencyButtons();
+                        ratesCurrencyButtons = currencyButtons.stream()
+                                .filter(o -> o instanceof CurrencyButtonsRates)
+                                .findAny().get()
+                                .getCurrencyButtons(update);
+
                     } catch (JsonProcessingException e) {
                         sendTextAnswer("Ошибка при выборе валюты!", chatId);
                         log.error("Ошибка при выборе валюты!", e);
                         return;
                     }
-                    SendMessage sendMessage = telegramUI.getMessageWithButtons(currencyButtons, text);
+                    SendMessage sendMessage = telegramUI.getMessageWithButtons(ratesCurrencyButtons, text);
                     sendMessage.setChatId(chatId);
                     answerProducer.produce(sendMessage);
                 }
-                case HELP,START -> {
+                case HELP, START -> {
                     sendTextAnswer("""
                             👋  Данный бот по вашему запросу предоставит актуальный курс валют
                             ▶  Для того чтобы получить курс  💰  нажмите /rates
@@ -93,18 +91,54 @@ public class MainServiceImpl implements MainService {
                             """, chatId);
                 }
                 case RATES_STAT -> {
-                    chartService.drawChart(chatId.toString());
+                    String text = "Выберите валюту: ";
+                    List<List<InlineKeyboardButton>> ratesStatCurrencyButtons;
+                    try {
+                        ratesStatCurrencyButtons = currencyButtons.stream()
+                                .filter(o -> o instanceof CurrencyButtonsChart)
+                                .findAny().get()
+                                .getCurrencyButtons(update);
+                    } catch (JsonProcessingException e) {
+                        sendTextAnswer("Ошибка при выборе валюты!", chatId);
+                        log.error("Ошибка при выборе валюты!", e);
+                        return;
+                    }
+                    SendMessage sendMessage = telegramUI.getMessageWithButtons(ratesStatCurrencyButtons, text);
+                    sendMessage.setChatId(chatId);
+                    answerProducer.produce(sendMessage);
                 }
-                case SUBSCRIBE,UNSUBSCRIBE -> {
+                case SUBSCRIBE -> {
+                    if (message.getChat().getType().equals("private")) {
+                        String text = "Выберите валюту: ";
+                        List<List<InlineKeyboardButton>> subscribeCurrencyButtons;
+                        try {
+                            subscribeCurrencyButtons = currencyButtons.stream()
+                                    .filter(o -> o instanceof CurrencyButtonsSubscribe)
+                                    .findAny().get()
+                                    .getCurrencyButtons(update);
+                        } catch (JsonProcessingException e) {
+                            sendTextAnswer("Ошибка при выборе валюты!", chatId);
+                            log.error("Ошибка при выборе валюты!", e);
+                            return;
+                        }
+                        if (subscribeCurrencyButtons == null) {
+                            sendTextAnswer("Вы уже подписаны на все валюты", chatId);
+                            return;
+                        }
+                        SendMessage sendMessage = telegramUI.getMessageWithButtons(subscribeCurrencyButtons, text);
+                        sendMessage.setChatId(chatId);
+                        answerProducer.produce(sendMessage);
+                    } else {
+                        sendTextAnswer("Доступно только в приватном чате с ботом!", chatId);
+                    }
+                }
+                case UNSUBSCRIBE -> {
                     sendTextAnswer("Пока не реализовано!", chatId);
                 }
             }
         } catch (UnsupportedOperationException e) {
             log.error("Пользователь ввел не существующую команду");
             sendTextAnswer(e.getMessage(), chatId);
-        } catch (IOException e) {
-            log.error("Ошибка отправки графика");
-            sendTextAnswer("Произошла ошибка",chatId);
         }
     }
 
@@ -115,7 +149,10 @@ public class MainServiceImpl implements MainService {
         String queryData = callbackQuery.getData();
         if (!queryData.equals("IGNORE")) {
             try {
-                SendMessage sendMessage = callBackService.process(jsonMapper.readCustomCallBack(queryData));
+                SendMessage sendMessage = callBackService.process(update);
+                if (sendMessage == null) {
+                    return;
+                }
                 InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
                 EditMessageText editMessageText = new EditMessageText();
                 editMessageText.setChatId(chatId);
@@ -127,25 +164,11 @@ public class MainServiceImpl implements MainService {
             } catch (JsonProcessingException e) {
                 sendTextAnswer("Внутренняя ошибка сервера!", chatId);
                 log.error("Ошибка парсинга", e);
+            } catch (IOException e) {
+                sendTextAnswer("Внутренняя ошибка сервера!", chatId);
+                log.error("Ошибка отправки графика", e);
             }
         }
-    }
-
-    private List<List<InlineKeyboardButton>> getCurrencyButtons() throws JsonProcessingException {
-        List<InlineKeyboardButton> currenciesKeyBoard = new ArrayList<>();
-        for (Currencies currency : Currencies.values()) {
-            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
-            inlineKeyboardButton.setText(currency.name());
-            HashMap<CallBackParams, String> params = new HashMap<>();
-            params.put(C, currency.name());
-            inlineKeyboardButton.setCallbackData(jsonMapper.writeCustomCallBackAsString(
-                    new CustomCallBack(CH_CUR, params)
-            ));
-            currenciesKeyBoard.add(inlineKeyboardButton);
-        }
-        List<List<InlineKeyboardButton>> currencyButtons = new ArrayList<>();
-        currencyButtons.add(currenciesKeyBoard);
-        return currencyButtons;
     }
 
     private void updateCurrencies() throws IOException {

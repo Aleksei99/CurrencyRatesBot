@@ -1,5 +1,7 @@
 package com.smuraha.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -13,7 +15,9 @@ public class RabbitConfig {
 
     @Bean
     public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
     @Bean
@@ -40,9 +44,15 @@ public class RabbitConfig {
     public Queue deleteQueue() {
         return new Queue(DELETE_QUEUE);
     }
+
     @Bean
     public Queue editQueue() {
         return new Queue(EDIT_QUEUE);
+    }
+
+    @Bean
+    public Queue cancelQueue() {
+        return new Queue(CANCEL_QUEUE);
     }
 
 }

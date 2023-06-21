@@ -6,18 +6,21 @@ import com.smuraha.model.enums.Currencies;
 import com.smuraha.repository.BankRepo;
 import com.smuraha.repository.SubscriptionRepo;
 import com.smuraha.service.AnswerProducer;
+import com.smuraha.service.JsoupParserService;
 import com.smuraha.service.util.TelegramUI;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-@RequiredArgsConstructor
 @Service
+@NoArgsConstructor
 public class JobNotifyUserForBankCurrencyRate implements Job {
 
+    @SneakyThrows
     @Override
     public void execute(JobExecutionContext context) {
         long subId = context.getJobDetail().getJobDataMap().getLong("subId");
@@ -25,6 +28,8 @@ public class JobNotifyUserForBankCurrencyRate implements Job {
         BankRepo bankRepo = (BankRepo) context.getMergedJobDataMap().get("bankRepo");
         TelegramUI telegramUI = (TelegramUI) context.getMergedJobDataMap().get("telegramUI");
         AnswerProducer producer = (AnswerProducer) context.getMergedJobDataMap().get("producer");
+        JsoupParserService parserService = (JsoupParserService) context.getMergedJobDataMap().get("jsoupParserService");
+        parserService.parseAndUpdate("https://myfin.by/currency");
 
         Subscription subscription = subscriptionRepo.findById(subId).get();
         Long bankId = subscription.getBank().getId();

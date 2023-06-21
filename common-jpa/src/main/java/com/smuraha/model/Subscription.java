@@ -25,5 +25,6 @@ public class Subscription extends BaseEntity{
     @Enumerated(value = EnumType.STRING)
     private Currencies currency;
 
+    @Column(name = "timenotify")
     private LocalTime timeNotify;
 }

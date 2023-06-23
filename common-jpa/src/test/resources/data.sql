@@ -459,8 +459,8 @@ INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (503, 'EUR', '2023-06-15 08:54:01.159608', 3.23, 3.24, 2);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (504, 'RUB', '2023-06-15 08:54:01.159608', 2.70, 3.80, 2);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (505, 'USD', '2023-06-15 08:54:01.167607', 2.96, 3.01, 3);
-INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (506, 'EUR', '2023-06-15 08:54:01.167607', 3.17, 3.25, 3);
-INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (507, 'RUB', '2023-06-15 08:54:01.167607', 2.70, 3.65, 3);
+INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (506, 'EUR', '2023-06-15 08:54:01.167608', 3.17, 3.25, 3);
+INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (507, 'RUB', '2023-06-15 08:54:01.167609', 2.70, 3.65, 3);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (508, 'USD', '2023-06-15 08:54:01.172606', 2.97, 2.99, 4);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (509, 'EUR', '2023-06-15 08:54:01.172606', 3.23, 3.26, 4);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (510, 'RUB', '2023-06-15 08:54:01.172606', 2.70, 3.69, 4);

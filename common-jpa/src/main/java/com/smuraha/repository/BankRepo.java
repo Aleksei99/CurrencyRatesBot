@@ -32,8 +32,8 @@ public interface BankRepo extends JpaRepository<Bank, Long> {
             select b from Bank b join fetch b.rates c
             where c.lastUpdate in
             (select max(cr.lastUpdate) from CurrencyRate cr
-            where cr.bank.id = :id)
-            and c.currency = :cur
+            where cr.bank.id = :id
+            and cr.currency = :cur)
             and b.id = :id
             """)
     Bank getBankByIdAndCur(@Param("id") Long id, @Param("cur") Currencies currency);

@@ -1,0 +1,65 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: myrabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - spring
+    environment:
+      - RABBITMQ_DEFAULT_USER=userok
+      - RABBITMQ_DEFAULT_PASS=p@ssw0rd
+    restart: unless-stopped
+  postgres:
+    container_name: mypostgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: currency_bot
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  core:
+    image: alexiandr99/core:latest
+    container_name: core
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - postgres
+      - rabbitmq
+    restart: unless-stopped
+  dispatcher:
+    image: alexiandr99/dispatcher:latest
+    container_name: dispatcher
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - postgres
+      - rabbitmq
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+  spring:
+    driver: bridge
+
+volumes:
+  postgres:

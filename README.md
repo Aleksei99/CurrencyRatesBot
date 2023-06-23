@@ -1,50 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+##Настройка Maven + Docker
+Для того чтобы настроить автоматическую сборку проекта и преобразование jar
+архивов в docker image в главном pom.xml файле нужно вставить следующий код:
 
-    <groupId>com.smuraha</groupId>
-    <artifactId>CurrencyRatesBot</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>dispatcher</module>
-        <module>amqp</module>
-        <module>common-jpa</module>
-        <module>core</module>
-    </modules>
-
+В пропертях нужно указать 
+```xml
+<image>[здесь ваш логин с докер хаба]/${project.artifactId}</image>
+```
+например
+```xml
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <spring.version>2.6.7</spring.version>
         <image>alexiandr99/${project.artifactId}</image>
     </properties>
+```
 
-    <parent>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <groupId>org.springframework.boot</groupId>
-        <version>2.6.7</version>
-    </parent>
+Дальше в этом же файле нужно настроить конфигурацию билда:
 
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.telegram</groupId>
-            <artifactId>telegrambots-spring-boot-starter</artifactId>
-            <version>6.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.13.4</version>
-        </dependency>
-    </dependencies>
-
+```xml
     <build>
         <pluginManagement>
             <plugins>
@@ -66,7 +40,7 @@
                     <version>3.1.4</version>
                     <configuration>
                         <from>
-                            <image>eclipse-temurin:17</image>
+                            <image>openjdk:17-jdk-slim</image>
                         </from>
                         <to>
                             <tags>
@@ -86,5 +60,31 @@
             </plugins>
         </pluginManagement>
     </build>
+```
 
-</project>
+Для того чтобы из jar файла автоматически был создан image в pom.xml
+каждого из сервисов нужно вставить следующий код:
+```xml
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>build-docker-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+```

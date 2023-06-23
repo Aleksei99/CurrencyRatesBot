@@ -41,6 +41,7 @@ public class AppUser extends BaseEntity {
     private List<Subscription> subscriptions;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "userstate")
     private UserState userState;
 
     @Transactional

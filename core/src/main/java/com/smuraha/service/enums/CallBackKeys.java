@@ -18,6 +18,10 @@ public enum CallBackKeys {
      */
     SUB,
     /**
+     * unsubscribe for selected currency
+     */
+    UNS,
+    /**
      * Choose all banks
      */
     CAB,

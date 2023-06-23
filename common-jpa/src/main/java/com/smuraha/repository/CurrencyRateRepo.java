@@ -13,13 +13,13 @@ import java.util.List;
 public interface CurrencyRateRepo extends JpaRepository<CurrencyRate, Long> {
 
     @Query(value = """
-            select date(last_update) as lastUpdate,
-                max(rate_buy) as buy,
-                max(rate_sell) as sell
+            select cast(last_update as date) as lastUpdate,
+                   max(rate_buy) as buy,
+                   max(rate_sell) as sell
             from currency_rate
             where currency = :curr and
-                last_update >= current_date - INTERVAL '30' DAY
-            group by date(last_update)
+                    last_update >= current_date - INTERVAL '30' DAY
+            group by cast(last_update as date)
             """, nativeQuery = true)
     List<CurrencyRateInfo> getRatesDataForCurrencyFor30Days(@Param("curr") String currency);
 }

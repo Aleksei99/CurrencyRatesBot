@@ -8,17 +8,21 @@ import com.smuraha.model.enums.Currencies;
 import com.smuraha.model.enums.UserState;
 import com.smuraha.repository.AppUserRepo;
 import com.smuraha.repository.BankRepo;
+import com.smuraha.repository.SubscriptionRepo;
 import com.smuraha.service.CallBackService;
 import com.smuraha.service.ChartService;
 import com.smuraha.service.dto.CustomCallBack;
 import com.smuraha.service.enums.CallBackKeys;
 import com.smuraha.service.enums.CallBackParams;
+import com.smuraha.service.scheduler.SchedulerManager;
 import com.smuraha.service.util.JsonMapper;
 import com.smuraha.service.util.TelegramUI;
 import lombok.RequiredArgsConstructor;
+import org.quartz.SchedulerException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -42,9 +46,11 @@ public class CallBackServiceImpl implements CallBackService {
     private final JsonMapper jsonMapper;
     private final ChartService chartService;
     private final AppUserRepo userRepo;
+    private final SchedulerManager schedulerManager;
+    private final SubscriptionRepo subscriptionRepo;
 
     @Override
-    public SendMessage process(Update update) throws IOException {
+    public SendMessage process(Update update) throws IOException, SchedulerException {
 
         CallbackQuery callbackQuery = update.getCallbackQuery();
         Long userTelegramId = callbackQuery.getFrom().getId();
@@ -73,8 +79,23 @@ public class CallBackServiceImpl implements CallBackService {
             case SUB -> {
                 return setUserStateWaitForTimePick(params,userTelegramId);
             }
+            case UNS -> {
+                return setAnswerUnsubscribeUserFromCurrency(params,userTelegramId);
+            }
         }
         return null;
+    }
+
+    private SendMessage setAnswerUnsubscribeUserFromCurrency(Map<CallBackParams, String> params, Long userTelegramId) throws SchedulerException {
+        AppUser user = userRepo.findByTelegramUserIdAndCurrencyWithJPQLFetch(
+                userTelegramId, Currencies.valueOf(params.get(C))
+        );
+        Subscription subscription = user.getSubscriptions().get(0);
+        schedulerManager.stopSubscriptionJob(subscription);
+        subscriptionRepo.delete(subscription);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText("Вы успешно отписались от "+subscription.getCurrency());
+        return sendMessage;
     }
 
     private SendMessage setUserStateWaitForTimePick(Map<CallBackParams, String> params,Long userTelegramId) {
@@ -92,7 +113,7 @@ public class CallBackServiceImpl implements CallBackService {
         user.setUserState(UserState.WAIT_FOR_TIME_PICK);
         userRepo.save(user);
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setText("Введите время оповещения (1-24) :");
+        sendMessage.setText("Введите время оповещения в формате h m, например: 9 10");
         return sendMessage;
     }
 

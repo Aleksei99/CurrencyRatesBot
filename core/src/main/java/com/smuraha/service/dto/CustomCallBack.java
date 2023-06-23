@@ -13,7 +13,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 /**
- * Должен быть не больше 64 байтов
+ * Json объект должен быть не больше 64 байтов!
  */
 public class CustomCallBack {
 

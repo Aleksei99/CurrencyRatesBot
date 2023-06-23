@@ -27,12 +27,17 @@ INSERT INTO bank (id, bank_name) VALUES (26, 'ОПТИКУРС НКФО');
 INSERT INTO bank (id, bank_name) VALUES (27, 'БТА БАНК');
 INSERT INTO bank (id, bank_name) VALUES (28, 'MYFIN ОБМЕН');
 
+INSERT INTO app_user (id, first_login_date, first_name, last_action_date, last_name, telegram_user_id, username, userstate) VALUES (1, '2023-06-20 11:22:52.742547', 'Алексей', '2023-06-22 10:18:33.772126', 'Смурага', 926023838, 'alexiandr009', 'BASIC_STATE');
+
+INSERT INTO public.subscription (id, currency, timenotify, bank_id, user_id) VALUES (10, 'USD', '10:15:00', 3, 1);
+INSERT INTO public.subscription (id, currency, timenotify, bank_id, user_id) VALUES (11, 'EUR', '14:05:00', 21, 1);
+
 INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 12:54:22.493749');
 INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 11:54:22.493749');
 INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 10:54:22.493749');
 INSERT INTO currency_update_history (update_time) VALUES ('2023-06-16 09:54:22.493749');
 
-INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (1, 'USD', '2023-06-12 10:54:22.493749', 2.93, 2.96, 1);
+INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (1, 'USD', '2023-05-23 10:54:22.493749', 2.93, 2.96, 1);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (2, 'EUR', '2023-06-12 10:54:22.493749', 3.11, 3.19, 1);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (3, 'RUB', '2023-06-12 10:54:22.493749', 2.70, 3.70, 1);
 INSERT INTO currency_rate (id, currency, last_update, rate_buy, rate_sell, bank_id) VALUES (4, 'USD', '2023-06-12 10:54:22.536194', 2.94, 2.95, 2);

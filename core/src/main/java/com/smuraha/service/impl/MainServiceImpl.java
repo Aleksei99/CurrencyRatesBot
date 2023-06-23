@@ -9,6 +9,7 @@ import com.smuraha.service.enums.Commands;
 import com.smuraha.service.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -109,7 +110,7 @@ public class MainServiceImpl implements MainService {
                 }
                 case SUBSCRIBE -> {
                     if (message.getChat().getType().equals("private")) {
-                        String text = "Выберите валюту: ";
+                        String text = "Выберите валюту на которую хотите подписаться: ";
                         List<List<InlineKeyboardButton>> subscribeCurrencyButtons;
                         try {
                             subscribeCurrencyButtons = currencyButtons.stream()
@@ -133,7 +134,29 @@ public class MainServiceImpl implements MainService {
                     }
                 }
                 case UNSUBSCRIBE -> {
-                    sendTextAnswer("Пока не реализовано!", chatId);
+                    if (message.getChat().getType().equals("private")) {
+                        String text = "Выберите валюту от которой хотите отписаться: ";
+                        List<List<InlineKeyboardButton>> unsubscribeCurrencyButtons;
+                        try {
+                            unsubscribeCurrencyButtons = currencyButtons.stream()
+                                    .filter(o -> o instanceof CurrencyButtonsUnsubscribe)
+                                    .findAny().get()
+                                    .getCurrencyButtons(update);
+                        } catch (JsonProcessingException e) {
+                            sendTextAnswer("Ошибка при выборе валюты!", chatId);
+                            log.error("Ошибка при выборе валюты!", e);
+                            return;
+                        }
+                        if (unsubscribeCurrencyButtons == null) {
+                            sendTextAnswer("Вы ещё не подписаны ни на одну из валют", chatId);
+                            return;
+                        }
+                        SendMessage sendMessage = telegramUI.getMessageWithButtons(unsubscribeCurrencyButtons, text);
+                        sendMessage.setChatId(chatId);
+                        answerProducer.produce(sendMessage);
+                    } else {
+                        sendTextAnswer("Доступно только в приватном чате с ботом!", chatId);
+                    }
                 }
             }
         } catch (UnsupportedOperationException e) {
@@ -167,6 +190,9 @@ public class MainServiceImpl implements MainService {
             } catch (IOException e) {
                 sendTextAnswer("Внутренняя ошибка сервера!", chatId);
                 log.error("Ошибка отправки графика", e);
+            } catch (SchedulerException e) {
+                sendTextAnswer("Внутренняя ошибка сервера!", chatId);
+                log.error("Ошибка остановки шедулера", e);
             }
         }
     }

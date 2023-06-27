@@ -33,6 +33,8 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - BOT_TOKEN=${BOT_TOKEN}
+      - TZ=Europe/Minsk
     networks:
       - spring
       - postgres
@@ -47,6 +49,9 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - BOT_TOKEN=${BOT_TOKEN}
+      - BOT_NAME=${BOT_NAME}
+      - TZ=Europe/Minsk
     networks:
       - spring
       - postgres

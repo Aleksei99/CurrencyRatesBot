@@ -1,12 +1,17 @@
-##Настройка Maven + Docker
-Для того чтобы настроить автоматическую сборку проекта и преобразование jar
-архивов в docker image в главном pom.xml файле нужно вставить следующий код:
+# Currency Monitoring Telegram Bot
 
-В пропертях нужно указать 
+This bot was developed as a pet project to gain practical experience in the areas of microservices, application architecture, deployment in Docker, and as a cheat sheet for future projects :smile:.
+
+## Maven + Docker Setup
+
+To configure automatic project build and conversion of jar archives to Docker images, you need to insert the following code into the main pom.xml file:
+
+In the properties section, specify:
+
 ```xml
-<image>[здесь ваш логин с докер хаба]/${project.artifactId}</image>
+<image>[your Docker Hub login]/${project.artifactId}</image>
 ```
-например
+For example:
 ```xml
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -16,7 +21,7 @@
     </properties>
 ```
 
-Дальше в этом же файле нужно настроить конфигурацию билда:
+Next, in the same file, configure the build configuration:
 
 ```xml
     <build>
@@ -62,8 +67,8 @@
     </build>
 ```
 
-Для того чтобы из jar файла автоматически был создан image в pom.xml
-каждого из сервисов нужно вставить следующий код:
+To automatically create an image from a jar file in the pom.xml of each service, insert the following code:
+
 ```xml
     <build>
         <plugins>
@@ -87,4 +92,12 @@
             </build>
         </profile>
     </profiles>
+```
+
+### Running the Bot
+
+To run the bot using Docker, you need a .env file located in the same folder as the Docker-compose.yml file. This .env file should contain the necessary variables for the bot's execution. Then, execute the following command :computer::
+
+```shell
+docker-compose up
 ```

@@ -26,9 +26,9 @@ public class ChartServiceImpl implements ChartService {
     public void drawChartByCurrency(String chatId, Currencies currency) throws IOException {
         List<CurrencyRateInfo> rawData = currencyRateRepo.getRatesDataForCurrencyFor30Days(currency.toString());
         Map<LocalDate, List<BigDecimal>> data = new TreeMap<>();
-        for (CurrencyRateInfo info:rawData) {
-            data.put(info.getLastUpdate(),List.of(info.getBuy(),info.getSell()));
+        for (CurrencyRateInfo info : rawData) {
+            data.put(info.getLastUpdate(), List.of(info.getBuy(), info.getSell()));
         }
-        telegramUI.drawChart(data,chatId);
+        telegramUI.drawChart(data, chatId);
     }
 }

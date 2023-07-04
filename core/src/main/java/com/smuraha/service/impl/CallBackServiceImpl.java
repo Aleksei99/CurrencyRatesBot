@@ -22,7 +22,6 @@ import org.quartz.SchedulerException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -62,7 +61,7 @@ public class CallBackServiceImpl implements CallBackService {
                 return setChooseAllBankOrSpecific(params);
             }
             case CCC -> {
-                return setAnswerForSelectedCurrencyForChart(params,chatId.toString());
+                return setAnswerForSelectedCurrencyForChart(params, chatId.toString());
             }
             case CAB -> {
                 return setAnswerForSelectedCurrencyForAllBanks(params);
@@ -77,10 +76,10 @@ public class CallBackServiceImpl implements CallBackService {
                 return setChooseBankForSubscription(params);
             }
             case SUB -> {
-                return setUserStateWaitForTimePick(params,userTelegramId);
+                return setUserStateWaitForTimePick(params, userTelegramId);
             }
             case UNS -> {
-                return setAnswerUnsubscribeUserFromCurrency(params,userTelegramId);
+                return setAnswerUnsubscribeUserFromCurrency(params, userTelegramId);
             }
         }
         return null;
@@ -94,11 +93,11 @@ public class CallBackServiceImpl implements CallBackService {
         schedulerManager.stopSubscriptionJob(subscription);
         subscriptionRepo.delete(subscription);
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setText("Вы успешно отписались от "+subscription.getCurrency());
+        sendMessage.setText("Вы успешно отписались от " + subscription.getCurrency());
         return sendMessage;
     }
 
-    private SendMessage setUserStateWaitForTimePick(Map<CallBackParams, String> params,Long userTelegramId) {
+    private SendMessage setUserStateWaitForTimePick(Map<CallBackParams, String> params, Long userTelegramId) {
         AppUser user = userRepo.findByTelegramUserIdWithJPQLFetch(userTelegramId);
         Long bankId = Long.valueOf(params.get(B));
         Bank bank = bankRepo.findById(bankId).get();
@@ -118,17 +117,17 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
     private SendMessage setChooseBankForSubscription(Map<CallBackParams, String> params) throws JsonProcessingException {
-        return getChooseBankWithPager(params, SUB,CBS);
+        return getChooseBankWithPager(params, SUB, CBS);
     }
 
     private SendMessage setChooseBank(Map<CallBackParams, String> params) throws JsonProcessingException {
-        return getChooseBankWithPager(params, CBC,CB);
+        return getChooseBankWithPager(params, CBC, CB);
     }
 
-    private SendMessage getChooseBankWithPager(Map<CallBackParams, String> params, CallBackKeys next,CallBackKeys prev) throws JsonProcessingException {
+    private SendMessage getChooseBankWithPager(Map<CallBackParams, String> params, CallBackKeys next, CallBackKeys prev) throws JsonProcessingException {
         List<List<InlineKeyboardButton>> banks_KB = new ArrayList<>();
 
-        int page = params.containsKey(P)?Integer.parseInt(params.get(P)):0;
+        int page = params.containsKey(P) ? Integer.parseInt(params.get(P)) : 0;
 
         Page<Bank> bankPages = bankRepo.findAll(PageRequest.of(page, 5));
         int totalPages = bankPages.getTotalPages();
@@ -145,14 +144,14 @@ public class CallBackServiceImpl implements CallBackService {
             row_banks_KB.add(cell_bank_KB);
             banks_KB.add(row_banks_KB);
         }
-        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(prev,params,page,totalPages);
+        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(prev, params, page, totalPages);
 
         banks_KB.add(pager);
         return telegramUI.getMessageWithButtons(banks_KB, "Выберите Банк: ");
     }
 
-    private SendMessage setAnswerForSelectedCurrencyForChart(Map<CallBackParams, String> params,String chatId) throws IOException {
-        chartService.drawChartByCurrency(chatId,Currencies.valueOf(params.get(C)));
+    private SendMessage setAnswerForSelectedCurrencyForChart(Map<CallBackParams, String> params, String chatId) throws IOException {
+        chartService.drawChartByCurrency(chatId, Currencies.valueOf(params.get(C)));
         return null;
     }
 
@@ -188,22 +187,21 @@ public class CallBackServiceImpl implements CallBackService {
     }
 
 
-
     private SendMessage setAnswerForSelectedCurrencyForAllBanks(Map<CallBackParams, String> params) throws JsonProcessingException {
         Currencies currency = Currencies.valueOf(params.get(C));
 
         List<List<InlineKeyboardButton>> banks_KB = new ArrayList<>();
-        int page = params.containsKey(P)?Integer.parseInt(params.get(P)):0;
+        int page = params.containsKey(P) ? Integer.parseInt(params.get(P)) : 0;
         Page<Bank> bankPages = bankRepo.getBanksByCur(currency, PageRequest.of(page, 5));
         int totalPages = bankPages.getTotalPages();
 
-        List<Bank> allBanks =  bankPages.toList();
+        List<Bank> allBanks = bankPages.toList();
 
         StringBuilder builder = new StringBuilder();
         for (Bank bank : allBanks) {
             builder.append(telegramUI.getBankFormedRates(bank));
         }
-        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(CAB,params,page,totalPages);
+        List<InlineKeyboardButton> pager = telegramUI.getCustomPager(CAB, params, page, totalPages);
         banks_KB.add(pager);
         return telegramUI.getMessageWithButtons(banks_KB, builder.toString());
     }

@@ -20,13 +20,13 @@ public class AnswerProducerImpl implements AnswerProducer {
     private final RabbitTemplate rabbitTemplate;
 
     @Override
-    public <T extends Serializable> void  produce(PartialBotApiMethod<T> message) {
-        if(message instanceof SendMessage) {
+    public <T extends Serializable> void produce(PartialBotApiMethod<T> message) {
+        if (message instanceof SendMessage) {
             rabbitTemplate.convertAndSend(ANSWER_QUEUE, message);
-        }else if(message instanceof DeleteMessage){
-            rabbitTemplate.convertAndSend(DELETE_QUEUE,message);
-        }else if(message instanceof EditMessageText){
-            rabbitTemplate.convertAndSend(EDIT_QUEUE,message);
+        } else if (message instanceof DeleteMessage) {
+            rabbitTemplate.convertAndSend(DELETE_QUEUE, message);
+        } else if (message instanceof EditMessageText) {
+            rabbitTemplate.convertAndSend(EDIT_QUEUE, message);
         }
     }
 }

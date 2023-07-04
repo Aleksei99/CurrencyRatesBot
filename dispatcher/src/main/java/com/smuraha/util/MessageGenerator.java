@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 @Component
 public class MessageGenerator {
 
-    public SendMessage generateSendMessageWithText(Message message,String text){
+    public SendMessage generateSendMessageWithText(Message message, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(message.getChatId());
         sendMessage.setText(text);

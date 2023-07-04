@@ -1,7 +1,5 @@
 package com.smuraha.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.smuraha.service.dto.CustomCallBack;
 import org.quartz.SchedulerException;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;

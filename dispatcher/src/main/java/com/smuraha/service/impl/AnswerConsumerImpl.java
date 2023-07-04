@@ -28,6 +28,7 @@ public class AnswerConsumerImpl implements AnswerConsumer {
     public void consumeDeleteMessage(DeleteMessage deleteMessage) {
         updateController.delete(deleteMessage);
     }
+
     @Override
     @RabbitListener(queues = {EDIT_QUEUE})
     public void consumeEditMessage(EditMessageText editMessageText) {

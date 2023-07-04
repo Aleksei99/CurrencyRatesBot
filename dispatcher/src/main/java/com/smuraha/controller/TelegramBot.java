@@ -50,6 +50,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
     }
+
     public void deleteMessage(DeleteMessage message) {
         if (message != null) {
             try {

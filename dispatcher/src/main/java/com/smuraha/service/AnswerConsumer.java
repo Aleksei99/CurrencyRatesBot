@@ -6,6 +6,8 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 
 public interface AnswerConsumer {
     void consumeSendMessage(SendMessage sendMessage);
+
     void consumeDeleteMessage(DeleteMessage deleteMessage);
+
     void consumeEditMessage(EditMessageText editMessageText);
 }

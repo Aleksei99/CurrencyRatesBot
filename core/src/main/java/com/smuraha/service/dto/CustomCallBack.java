@@ -19,7 +19,7 @@ public class CustomCallBack {
 
     private CallBackKeys key;
 
-    private Map<CallBackParams,String> prms;
+    private Map<CallBackParams, String> prms;
 
     @Override
     public boolean equals(Object o) {

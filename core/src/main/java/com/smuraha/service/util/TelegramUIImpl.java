@@ -3,6 +3,7 @@ package com.smuraha.service.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.smuraha.model.Bank;
 import com.smuraha.model.CurrencyRate;
+import com.smuraha.model.enums.Currencies;
 import com.smuraha.service.dto.CustomCallBack;
 import com.smuraha.service.enums.CallBackKeys;
 import com.smuraha.service.enums.CallBackParams;
@@ -31,10 +32,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.smuraha.service.enums.CallBackParams.C;
 import static com.smuraha.service.enums.CallBackParams.P;
 
 @Service
@@ -64,6 +67,24 @@ public class TelegramUIImpl implements TelegramUI {
                 .append("\uD83D\uDD57").append(" ").append(rate.getLastUpdate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n")
                 .append("\n");
         return builder.toString();
+    }
+
+    @Override
+    public List<List<InlineKeyboardButton>> getCurrencyButtons(List<Currencies> currencies, CallBackKeys cbs) throws JsonProcessingException {
+        List<InlineKeyboardButton> currenciesKeyBoard = new ArrayList<>();
+        for (Currencies currency : currencies) {
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText(currency.name());
+            HashMap<CallBackParams, String> params = new HashMap<>();
+            params.put(C, currency.name());
+            inlineKeyboardButton.setCallbackData(jsonMapper.writeCustomCallBackAsString(
+                    new CustomCallBack(cbs, params)
+            ));
+            currenciesKeyBoard.add(inlineKeyboardButton);
+        }
+        List<List<InlineKeyboardButton>> currencyButtons = new ArrayList<>();
+        currencyButtons.add(currenciesKeyBoard);
+        return currencyButtons;
     }
 
     @Override

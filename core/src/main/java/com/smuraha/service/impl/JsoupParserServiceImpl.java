@@ -32,7 +32,7 @@ public class JsoupParserServiceImpl implements JsoupParserService {
     @Override
     public void parseAndUpdate(String url) throws IOException {
 
-        if(historyRepo.findByUpdateTimeIsGreaterThanEqual(LocalDateTime.now().minusHours(1)).isEmpty()) {
+        if (historyRepo.findByUpdateTimeIsGreaterThanEqual(LocalDateTime.now().minusHours(1)).isEmpty()) {
 
             historyRepo.save(new CurrencyUpdateHistory(LocalDateTime.now()));
             Map<String, List<BankCurrencyDto>> bankCurrencyInfo = getBankCurrencyInfo(url);

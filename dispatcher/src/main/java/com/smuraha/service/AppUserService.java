@@ -6,5 +6,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface AppUserService {
     UserState getUserState(Long telegramUserId);
+
     AppUser findOrSaveUser(Update update);
 }

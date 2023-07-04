@@ -16,12 +16,12 @@ public class UpdateProducerImpl implements UpdateProducer {
 
     @Override
     public void produce(String queue, Update update) {
-        rabbitTemplate.convertAndSend(queue,update);
+        rabbitTemplate.convertAndSend(queue, update);
     }
 
     @Override
     public void produce(String queue, Update update, AppUser user) {
         UpdateWithUserDto dto = new UpdateWithUserDto(update, user);
-        rabbitTemplate.convertAndSend(queue,dto);
+        rabbitTemplate.convertAndSend(queue, dto);
     }
 }

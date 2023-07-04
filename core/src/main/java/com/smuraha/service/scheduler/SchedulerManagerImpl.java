@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class SchedulerManagerImpl implements SchedulerManager{
+public class SchedulerManagerImpl implements SchedulerManager {
 
     private final Scheduler scheduler;
 
@@ -28,12 +28,12 @@ public class SchedulerManagerImpl implements SchedulerManager{
     @Override
     public void startSubscriptionJob(Subscription subscription) throws SchedulerException {
         Long id = subscription.getId();
-        Map<Object,Object> map = new HashMap<>();
-        map.put("subscriptionRepo",subscriptionRepo);
-        map.put("bankRepo",bankRepo);
-        map.put("telegramUI",telegramUI);
-        map.put("producer",producer);
-        map.put("jsoupParserService",jsoupParserService);
+        Map<Object, Object> map = new HashMap<>();
+        map.put("subscriptionRepo", subscriptionRepo);
+        map.put("bankRepo", bankRepo);
+        map.put("telegramUI", telegramUI);
+        map.put("producer", producer);
+        map.put("jsoupParserService", jsoupParserService);
         JobDetail jobDetail = JobBuilder.newJob(JobNotifyUserForBankCurrencyRate.class)
                 .usingJobData("subId", id)
                 .usingJobData(new JobDataMap(map))
@@ -43,14 +43,14 @@ public class SchedulerManagerImpl implements SchedulerManager{
                         subscription.getTimeNotify().getHour(),
                         subscription.getTimeNotify().getMinute())
                 ).build();
-        scheduler.scheduleJob(jobDetail,trigger);
-        if(!scheduler.isStarted()){
+        scheduler.scheduleJob(jobDetail, trigger);
+        if (!scheduler.isStarted()) {
             scheduler.start();
         }
     }
 
     @Override
     public void stopSubscriptionJob(Subscription subscription) throws SchedulerException {
-        scheduler.deleteJob(JobKey.jobKey(subscription.getId()+""));
+        scheduler.deleteJob(JobKey.jobKey(subscription.getId() + ""));
     }
 }

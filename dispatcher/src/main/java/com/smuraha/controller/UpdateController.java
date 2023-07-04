@@ -61,7 +61,7 @@ public class UpdateController {
                 updateProducer.produce(USER_INPUT_QUEUE, update, user);
             } else if (text.startsWith("/")) {
                 updateProducer.produce(COMMAND_QUEUE, update);
-            }else {
+            } else {
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setText("Выполните предыдущий запрос или для отмены предыдущей операции введите /cancel");
                 sendMessage.setChatId(message.getChatId());
